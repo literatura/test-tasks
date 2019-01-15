@@ -4,7 +4,7 @@
  * Требуется подсчитать сколько бит в этом файле имеют значение 1. 
  * Написать решение и оптимизировать его.
  * 
- * Для решения используется теоретическая часть, преставленная в статье https://habr.com/post/276957/
+ * Для решения используется способ замены 0 в бинарной строке на '' и подсчет длины этой строки
  */
 
 ini_set('max_execution_time', 2000);
@@ -45,17 +45,15 @@ try {
     exit();
 }
 
-function processFile($filename) 
-{
-    if (!$handle = fopen($filename, 'rb')) {
-        throw new Exception("Can not open file $filename for read");
-    }
-
+function processFile($filename) {
+    $handle = fopen($filename, 'rb');
     $oneBitsCount = 0;
 
-    while ($chunk = fread($handle, 4)) {
-        $str = hexdec(bin2hex($chunk));
-        $oneBitsCount += calcOneBitsCount($str);
+    while (($buffer = fgets($handle, 4096)) !== false) {
+        for($l=strlen($buffer), $i=0; $i<$l; $i++) {
+            $binary = sprintf('%08b', ord($buffer[$i]));
+            $oneBitsCount += calcOneBitsCount($binary);
+        }
     }
 
     fclose($handle);
@@ -63,15 +61,10 @@ function processFile($filename)
     return $oneBitsCount;
 }
 
-function calcOneBitsCount($value) 
-{
-    $result = $value - (($value >> 1) & 0x55555555); 
-    $result = (($result >> 2) & 0x33333333) + ($result & 0x33333333);
-    $result = (($result >> 4) + $result) & 0x0F0F0F0F; 
-    $result = (($result >> 8) + $result) & 0x00FF00FF;
-    $result = (($result >> 16) + $result) & 0x0000FFFF;
+function calcOneBitsCount($string) {
+    $string = str_replace('0', '', $string);
 
-    return $result;
+    return strlen($string);
 }
 
 function checkTestMode() 
