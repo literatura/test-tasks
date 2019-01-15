@@ -19,3 +19,15 @@
 
 * Bits: 112 ; Time: 3.8862228393555E-5
 * Bits: 2100000 ; Time: 0.35030293464661 
+
+
+## Тестовое задание 2
+```sql
+SELECT e.id, e.name
+FROM event e
+    JOIN user_event AS ue ON ue.event_id = e.id
+    JOIN user AS u ON u.id=ue.user_id
+WHERE u.gender="female"
+GROUP BY e.id
+HAVING AVG(u.age) > 30
+```
